@@ -12,6 +12,9 @@ on:
 jobs:
   teste2e:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{secrets.database_url}}
+      JWT_SECRET: ${{secrets.jwt_secret}}
     # Service containers to run with `container-job`
     services:
       # Label used to access the service container
