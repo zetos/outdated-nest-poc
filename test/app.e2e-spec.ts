@@ -1,11 +1,11 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as pactum from 'pactum';
-import { PrismaService } from './../src/prisma/prisma.service';
-import { AppModule } from './../src/app.module';
-import { AuthDto } from './../src/auth/dto';
-import { EditUserDto } from 'src/user/dto';
-import { diffieHellman } from 'crypto';
+import { PrismaService } from '../src/prisma/prisma.service';
+import { AppModule } from '../src/app.module';
+import { AuthDto } from '../src/auth/dto';
+import { EditUserDto } from '../src/user/dto';
+import { CreateBookmarkDto, EditBookmarkDto } from '../src/bookmark/dto';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -140,14 +140,96 @@ describe('App e2e', () => {
   });
 
   describe('Bookmarks', () => {
-    describe('Create bookmark', () => {});
+    describe('Get empty bookmarks', () => {
+      it('should get bookmarks', async () => {
+        return pactum
+          .spec()
+          .get('/bookmarks')
+          .withHeaders({ Authorization: 'Bearer $S{userAt}' })
+          .expectStatus(200)
+          .expectBody([]);
+      });
+    });
 
-    describe('Get bookmarks', () => {});
+    describe('Create bookmark', () => {
+      const dto: CreateBookmarkDto = {
+        title: 'White Rain Bookmark !!',
+        link: 'https://mynoise.net/NoiseMachines/whiteRainNoiseGenerator.php',
+      };
+      it('should create a bookmark', async () => {
+        return pactum
+          .spec()
+          .post('/bookmarks')
+          .withHeaders({ Authorization: 'Bearer $S{userAt}' })
+          .withBody(dto)
+          .expectStatus(201)
+          .expectBodyContains(dto.title)
+          .expectBodyContains(dto.link)
+          .stores('bookmarkId', 'id');
+      });
+    });
 
-    describe('Get bookmark by id', () => {});
+    describe('Get bookmarks', () => {
+      it('should get bookmarks', async () => {
+        return pactum
+          .spec()
+          .get('/bookmarks')
+          .withHeaders({ Authorization: 'Bearer $S{userAt}' })
+          .expectStatus(200)
+          .expectJsonLength(1);
+      });
+    });
 
-    describe('Edit bookmarks by id', () => {});
+    describe('Get bookmark by id', () => {
+      it('should get bookmark by id', async () => {
+        return pactum
+          .spec()
+          .get('/bookmarks/{id}')
+          .withPathParams('id', '$S{bookmarkId}')
+          .withHeaders({ Authorization: 'Bearer $S{userAt}' })
+          .expectStatus(200)
+          .expectBodyContains('$S{bookmarkId}');
+      });
+    });
 
-    describe('Delete bookmarks by id', () => {});
+    describe('Edit bookmarks by id', () => {
+      const dto: EditBookmarkDto = {
+        title: 'White Rain',
+        description:
+          'This sound offers the exact same spectrum as white noise.',
+      };
+
+      it('should edit bookmark', async () => {
+        return pactum
+          .spec()
+          .patch('/bookmarks/{id}')
+          .withPathParams('id', '$S{bookmarkId}')
+          .withHeaders({ Authorization: 'Bearer $S{userAt}' })
+          .withBody(dto)
+          .expectStatus(200)
+          .expectBodyContains(dto.title)
+          .expectBodyContains(dto.description);
+      });
+    });
+
+    describe('Delete bookmarks by id', () => {
+      it('should delete bookmark', async () => {
+        return pactum
+          .spec()
+          .delete('/bookmarks/{id}')
+          .withPathParams('id', '$S{bookmarkId}')
+          .withHeaders({ Authorization: 'Bearer $S{userAt}' })
+          .expectStatus(204);
+      });
+
+      it('should get bookmarks', async () => {
+        return pactum
+          .spec()
+          .get('/bookmarks')
+          .withHeaders({ Authorization: 'Bearer $S{userAt}' })
+          .expectStatus(200)
+          .expectBody([]);
+      });
+    });
   });
 });
