@@ -1,0 +1,34 @@
+
+service: serverless-example
+
+useDotenv: true
+
+plugins:
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  environment:
+    DATABASE_URL: ${env:DATABASE_URL}
+    JWT_SECRET: ${env:JWT_SECRET}
+
+package:
+  excludeDevDependencies: true
+
+functions:
+  main:
+    handler: dist/serverless.handler
+    package:
+        # individually: true
+        exclude:
+            - node_modules/**
+            - prisma/migrations/**
+    timeout: 5
+    events:
+      - http:
+          method: ANY
+          path: /
+      - http:
+          method: ANY
+          path: '{proxy+}'
