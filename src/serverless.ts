@@ -2,7 +2,12 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import serverlessExpress from '@vendia/serverless-express';
-import { APIGatewayAuthorizerEvent, Callback, Context, Handler } from 'aws-lambda';
+import {
+  APIGatewayAuthorizerEvent,
+  Callback,
+  Context,
+  Handler,
+} from 'aws-lambda';
 
 let server: Handler;
 
