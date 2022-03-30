@@ -2,7 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import serverlessExpress from '@vendia/serverless-express';
-import { Callback, Context, Handler } from 'aws-lambda';
+import { APIGatewayAuthorizerEvent, Callback, Context, Handler } from 'aws-lambda';
 
 let server: Handler;
 
@@ -20,7 +20,7 @@ async function bootstrap() {
 }
 
 export const handler: Handler = async (
-  event: any,
+  event: APIGatewayAuthorizerEvent,
   context: Context,
   callback: Callback,
 ) => {
