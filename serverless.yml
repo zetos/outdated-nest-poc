@@ -1,0 +1,67 @@
+
+service: serverless-example
+
+useDotenv: true
+
+plugins:
+  - serverless-offline
+  - serverless-scriptable-plugin
+
+custom:
+  scriptable:
+    hooks:
+      before:package:createDeploymentArtifacts: npm run build
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  vpc:
+    securityGroupIds:
+      - sg-01decb4a1cf311f92
+    subnetIds:
+      - subnet-0c22861fccd0cc38f
+      - subnet-0802d75b7adab799b
+      - subnet-0f83812d37809790e
+  environment:
+    DATABASE_URL: ${env:DATABASE_URL}
+    JWT_SECRET: ${env:JWT_SECRET}
+
+package:
+  patterns:
+    - '!**/**'
+    - 'dist/**'
+    - 'node_modules/**'
+    - '!node_modules/prisma'
+    - '!node_modules/@prisma/engines'
+    - '!node_modules/typescript'
+    - '!node_modules/aws-sdk/**'
+    - '.env'
+
+functions:
+  main:
+    handler: dist/serverless.handler
+    timeout: 5
+    events:
+      - http:
+          method: ANY
+          path: /
+      - http:
+          method: ANY
+          path: '{proxy+}'
+resources:
+  Resources:
+    AWSLambdaVPCAccessExecutionRole:
+      Type: AWS::IAM::ManagedPolicy
+      Properties:
+        Description: Creating policy for vpc connetion.
+        Roles:
+          - {"Ref" : "IamRoleLambdaExecution"}
+        PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action:
+                - ec2:CreateNetworkInterface
+                - ec2:DescribeNetworkInterfaces
+                - ec2:DeleteNetworkInterface
+              Resource: "*"
