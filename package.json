@@ -68,7 +68,7 @@
     "jest": "^27.2.5",
     "pactum": "^3.1.9",
     "prettier": "^2.3.2",
-    "prisma": "^4.11.0",
+    "prisma": "^5.15.0",
     "serverless-offline": "^8.8.0",
     "serverless-scriptable-plugin": "^1.2.2",
     "source-map-support": "^0.5.20",
